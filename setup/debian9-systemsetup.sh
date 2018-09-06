@@ -1,6 +1,13 @@
 #!/bin/bash
 #
-# Execute as 'root'
+# ref'ju:geeks welcome - Debian 9 automatic system setup
+#  (primary management host)
+
+if [[ $EUID != 0 ]]
+then
+    echo "Need to run as root (or use 'sudo')" >&2
+    exit 128
+fi
 
 # Common tools
 apt-get install -y unzip
@@ -17,23 +24,23 @@ chmod 440 /etc/sudoers.d/rgeek
 # 'Grav' website
 GRAV_WEBROOT="/home/www/html"
 GRAV_USER="www-data"
-GRAV_GROUP="$GRAV_GROUP"
+GRAV_GROUP="$GRAV_USER"
 
 apt-get install -y apache2 php php-gd php-curl php-xml php-mbstring php-json php-zip php-yaml php-apcu
 
 cat >> /etc/apache2/sites-available/refjugeeks-grav.conf << EOF
 <VirtualHost *:80>
-	ServerAdmin webmaster@localhost
-	DocumentRoot $GRAV_WEBROOT
+        ServerAdmin webmaster@localhost
+        DocumentRoot $GRAV_WEBROOT
 
-        <Directory /home/www/html>
+        <Directory $GRAV_WEBROOT>
             Options Indexes FollowSymLinks
             AllowOverride All
             Require all granted
         </Directory>
 
-	ErrorLog ${APACHE_LOG_DIR}/error.log
-	CustomLog ${APACHE_LOG_DIR}/access.log combined
+        ErrorLog \${APACHE_LOG_DIR}/error.log
+        CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 
 EOF
