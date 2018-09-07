@@ -5,14 +5,18 @@
 
 if [[ $EUID != 0 ]]
 then
-    echo "Need to run as root (or use 'sudo')" >&2
+    echo "Please run as root" >&2
     exit 128
 fi
+
+# Common resources
+PATH_SCRIPT="$(realpath "$0")"
+RESOURCES="$PATH_SCRIPT/../resources"
 
 # Common tools
 apt-get install -y unzip
 
-# 'sudo' config
+# sudo and config
 apt-get install -y sudo
 
 cat >> /etc/sudoers.d/rgeek << EOF
@@ -21,7 +25,7 @@ EOF
 
 chmod 440 /etc/sudoers.d/rgeek
 
-# 'Grav' website
+# Grav website
 GRAV_WEBROOT="/home/www/html"
 GRAV_USER="www-data"
 GRAV_GROUP="$GRAV_USER"
@@ -56,6 +60,13 @@ chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT"
 
 # DNS/DHCP
 apt-get install -y dnsmasq
+
+sed -i /CONFIG_DIR/ s/$/,.select/ /etc/default/dnsmasq
+cp -f "$RESOURCES/etc/dnsmasq.d/*.select" /etc/dnsmasq.d/
+chown 0:0 /etc/dnsmasq.d/*.select
+(cd /etc/dnsmasq.d && ln -sf refjugeeks-lan.conf.primary.select refjugeeks-lan.conf)
+
+systemctl restart dnsmasq
 
 # FTP (server)
 apt-get install -y ???

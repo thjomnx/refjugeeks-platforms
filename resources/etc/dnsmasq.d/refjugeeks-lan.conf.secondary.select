@@ -1,0 +1,16 @@
+# DHCP settings for refjugeeks LAN (ranges 1+2)
+#dhcp-range=192.168.0.150,192.168.0.174,12h
+dhcp-range=192.168.0.175,192.168.0.199,12h
+
+# Default gateway for refjugeeks LAN
+dhcp-option=3,192.168.0.1
+
+# DNS servers for refjugeeks LAN
+dhcp-option=6,192.168.0.3,192.168.0.4
+
+# DNS (search) domain for refjugeeks LAN
+domain=refjugeeks.net
+
+# Proxy auto-config PAC file
+dhcp-option=252,http://192.168.0.3/refjugeeks.pac
+
