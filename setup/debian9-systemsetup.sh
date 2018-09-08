@@ -50,14 +50,14 @@ cat >> "/etc/apache2/sites-available/${GRAV_CONFIG}.conf" << EOF
 
 EOF
 
+mkdir -p "$GRAV_WEBROOT"
+chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT"
+
 a2enmod rewrite
 a2dissite 000-default
 a2ensite "$GRAV_CONFIG"
 
 systemctl restart apache2
-
-mkdir -p "$GRAV_WEBROOT"
-chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT"
 
 # DNS/DHCP
 DNSMASQ_DEFAULTS="/etc/default/dnsmasq"
@@ -66,9 +66,12 @@ DNSMASQ_CONFIG_D="/etc/dnsmasq.d"
 apt-get install -y dnsmasq
 
 sed -i /CONFIG_DIR/ s/$/,.select/ "$DNSMASQ_DEFAULTS"
-cp -f "${RESOURCES}${DNSMASQ_CONFIG_D}/*.select" "$DNSMASQ_CONFIG_D"
+cp -f "$RESOURCES/${DNSMASQ_CONFIG_D##*/}/*.select" "$DNSMASQ_CONFIG_D"
 chown 0:0 "$DNSMASQ_CONFIG_D/*.select"
 (cd "$DNSMASQ_CONFIG_D" && ln -sf refjugeeks-lan.conf.primary.select refjugeeks-lan.conf)
+
+cp -f "$RESOURCES/dhcp-proxyconfig/*" "$GRAV_WEBROOT"
+chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT/{refjugeeks.pac,wpad.dat}"
 
 systemctl restart dnsmasq
 
@@ -79,6 +82,7 @@ VSFTPD_CONFIG="/etc/vsftpd.conf"
 VSFTPD_CONFIG_D="/etc/vsftpd.d"
 VSFTPD_USERLIST="$VSFTPD_CONFIG_D/userlist"
 VSFTPD_USER="rgeekftp"
+VSFTPD_USER_HOME="/mnt/srv/ftp"
 
 mkdir -p "$VSFTPD_CONFIG_D"
 
@@ -98,6 +102,15 @@ userlist_deny=NO
 
 EOF
 fi
+
+mkdir -p "$VSFTPD_USER_HOME"
+useradd -d "$VSFTPD_USER_HOME" -G ftp -M "$VSFTPD_USER"
+chown -R "$VSFTPD_USER": "$VSFTPD_USER_HOME"
+
+echo -n "Type password for user '$VSFTPD_USER': "
+read -s vsftpd_user_password
+echo
+echo "$VSFTPD_USER:$vsftpd_user_password" | chpasswd
 
 systemctl restart vsftpd
 
