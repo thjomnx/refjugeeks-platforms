@@ -57,6 +57,7 @@ a2enmod rewrite
 a2dissite 000-default
 a2ensite "$GRAV_CONFIG"
 
+systemctl enable apache2
 systemctl restart apache2
 
 # DNS/DHCP
@@ -73,6 +74,7 @@ chown 0:0 "$DNSMASQ_CONFIG_D/*.select"
 cp -f "$RESOURCES/dhcp-proxyconfig/*" "$GRAV_WEBROOT"
 chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT/{refjugeeks.pac,wpad.dat}"
 
+systemctl enable dnsmasq
 systemctl restart dnsmasq
 
 # FTP
@@ -112,5 +114,26 @@ read -r -s vsftpd_user_password
 echo
 echo "$VSFTPD_USER:$vsftpd_user_password" | chpasswd
 
+systemctl enable vsftpd
 systemctl restart vsftpd
+
+# HTTP-Proxy
+apt-get install -y squid
+
+SQUID_CONFIG="/etc/squid/squid.conf"
+
+if ! grep -q "refjugeeks welcome" "$SQUID_CONFIG"
+then
+    cat >> "$SQUID_CONFIG" << EOF
+
+# Custom configuration for refjugeeks welcome
+acl localnet src 192.168.0.0/24
+http_access allow localnet
+cache_dir ufs /var/spool/squid 1000 16 256
+
+EOF
+fi
+
+systemctl enable squid
+systemctl restart squid
 
