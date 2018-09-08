@@ -101,12 +101,13 @@ then
 userlist_file=$VSFTPD_USERLIST
 userlist_enable=YES
 userlist_deny=NO
+write_enable=YES
 
 EOF
 fi
 
 mkdir -p "$VSFTPD_USER_HOME"
-useradd -d "$VSFTPD_USER_HOME" -G ftp -M "$VSFTPD_USER"
+useradd -d "$VSFTPD_USER_HOME" -G ftp -M "$VSFTPD_USER" -s /bin/bash
 chown -R "$VSFTPD_USER": "$VSFTPD_USER_HOME"
 chmod o-rwx "$VSFTPD_USER_HOME"
 
