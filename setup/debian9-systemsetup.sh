@@ -108,7 +108,7 @@ useradd -d "$VSFTPD_USER_HOME" -G ftp -M "$VSFTPD_USER"
 chown -R "$VSFTPD_USER": "$VSFTPD_USER_HOME"
 
 echo -n "Type password for user '$VSFTPD_USER': "
-read -s vsftpd_user_password
+read -r -s vsftpd_user_password
 echo
 echo "$VSFTPD_USER:$vsftpd_user_password" | chpasswd
 
