@@ -14,7 +14,7 @@ PATH_SCRIPT="$(realpath "$0")"
 RESOURCES="$PATH_SCRIPT/../resources"
 
 # Common tools
-apt-get install -y unzip
+apt-get install -y htop iftop iotop tig unzip
 
 # sudo and config
 apt-get install -y sudo
@@ -35,17 +35,19 @@ apt-get install -y apache2 php php-gd php-curl php-xml php-mbstring php-json php
 
 cat >> "/etc/apache2/sites-available/${GRAV_CONFIG}.conf" << EOF
 <VirtualHost *:80>
-        ServerAdmin webmaster@localhost
-        DocumentRoot $GRAV_WEBROOT
+    #ServerName www.refjugeeks.net
 
-        <Directory $GRAV_WEBROOT>
-            Options Indexes FollowSymLinks
-            AllowOverride All
-            Require all granted
-        </Directory>
+    ServerAdmin webmaster@localhost
+    DocumentRoot $GRAV_WEBROOT
 
-        ErrorLog \${APACHE_LOG_DIR}/error.log
-        CustomLog \${APACHE_LOG_DIR}/access.log combined
+    <Directory $GRAV_WEBROOT>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 
 EOF
@@ -53,9 +55,41 @@ EOF
 mkdir -p "$GRAV_WEBROOT"
 chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT"
 
+# sv_downloadurl setup (redirects webroot to /mnt/... (expects e.g. external storage)
+SVDURL_CONFIG="refjugeeks-svdurl"
+SVDURL_WEBROOT="/home/www/svdurl"
+SVDURL_STORAGE="/mnt/srv/svdurl"
+SVDURL_USER="www-data"
+SVDURL_GROUP="$SVDURL_USER"
+
+cat >> "/etc/apache2/sites-available/${SVDURL_CONFIG}.conf" << EOF
+<VirtualHost *:80>
+    ServerName svdurl.refjugeeks.net
+
+    ServerAdmin webmaster@localhost
+    DocumentRoot /home/www/svdurl
+
+    <Directory /home/www/svdurl>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+EOF
+
+mkdir -p "$SVDURL_STORAGE"
+chown -R "$SVDURL_USER":"$SVDURL_GROUP" "$SVDURL_STORAGE"
+runuser -u "$SVDURL_USER" -- ln -s "$SVDURL_STORAGE" "$SVDURL_WEBROOT"
+
+# Apache config
 a2enmod rewrite
 a2dissite 000-default
 a2ensite "$GRAV_CONFIG"
+a2ensite "$SVDURL_CONFIG"
 
 systemctl enable apache2
 systemctl restart apache2
