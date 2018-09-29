@@ -1,3 +1,6 @@
+# Enable DHCP for refjugeeks LAN
+bind-interfaces
+
 # DHCP settings for refjugeeks LAN (ranges 1+2)
 #dhcp-range=192.168.0.150,192.168.0.174,12h
 dhcp-range=192.168.0.175,192.168.0.199,12h
