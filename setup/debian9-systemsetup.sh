@@ -11,7 +11,7 @@ fi
 
 # Common resources
 PATH_SCRIPT="$(realpath "$0")"
-RESOURCES="$PATH_SCRIPT/../resources"
+RESOURCES="${PATH_SCRIPT%/*}/../resources"
 
 # Common tools
 apt-get install -y htop iftop iotop nmap tig unzip
@@ -83,7 +83,8 @@ EOF
 
 mkdir -p "$SVDURL_STORAGE"
 chown -R "$SVDURL_USER":"$SVDURL_GROUP" "$SVDURL_STORAGE"
-runuser -u "$SVDURL_USER" -- ln -s "$SVDURL_STORAGE" "$SVDURL_WEBROOT"
+ln -s "$SVDURL_STORAGE" "$SVDURL_WEBROOT"
+chown -h "$SVDURL_USER":"$SVDURL_GROUP" "$SVDURL_WEBROOT"
 
 # Apache config
 a2enmod rewrite
@@ -100,13 +101,13 @@ DNSMASQ_CONFIG_D="/etc/dnsmasq.d"
 
 apt-get install -y dnsmasq
 
-sed -i /CONFIG_DIR/ s/$/,.select/ "$DNSMASQ_DEFAULTS"
+sed -i /CONFIG_DIR/s/$/,.select/ "$DNSMASQ_DEFAULTS"
 cp -f "$RESOURCES/${DNSMASQ_CONFIG_D##*/}/*.select" "$DNSMASQ_CONFIG_D"
 chown 0:0 "$DNSMASQ_CONFIG_D/*.select"
 (cd "$DNSMASQ_CONFIG_D" && ln -sf refjugeeks-lan.conf.primary.select refjugeeks-lan.conf)
 
 cp -f "$RESOURCES/dhcp-proxyconfig/*" "$GRAV_WEBROOT"
-chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT/{refjugeeks.pac,wpad.dat}"
+chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT/"{refjugeeks.pac,wpad.dat}
 
 systemctl enable dnsmasq
 systemctl restart dnsmasq
@@ -122,7 +123,7 @@ VSFTPD_USER_HOME="/mnt/srv/ftp"
 
 mkdir -p "$VSFTPD_CONFIG_D"
 
-if ! grep -q "$VSFTPD_USER" "$VSFTPD_USERLIST"
+if ! grep -q "$VSFTPD_USER" "$VSFTPD_USERLIST" &> /dev/null
 then
     echo "$VSFTPD_USER" >> "$VSFTPD_USERLIST"
 fi
