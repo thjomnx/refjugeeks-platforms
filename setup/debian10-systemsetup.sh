@@ -14,7 +14,7 @@ PATH_SCRIPT="$(realpath "$0")"
 RESOURCES="${PATH_SCRIPT%/*}/../resources"
 
 # Common tools
-apt-get install -y htop iftop iotop nmap tig unzip
+apt-get install -y dnsutils htop iftop iotop net-tools nmap tig unzip vim
 
 # sudo and config
 apt-get install -y sudo
