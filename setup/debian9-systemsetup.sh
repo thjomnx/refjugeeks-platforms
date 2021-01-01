@@ -9,6 +9,9 @@ then
     exit 128
 fi
 
+echo "You will be prompted for input during setup. Make sure session timeouts don't cause any trouble."
+read -n 1 -s -r -p "Press any key to continue, or CTRL+C to abort."
+
 # Common resources
 PATH_SCRIPT="$(realpath "$0")"
 RESOURCES="${PATH_SCRIPT%/*}/../resources"
