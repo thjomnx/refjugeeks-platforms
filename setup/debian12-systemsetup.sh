@@ -157,23 +157,3 @@ echo "$VSFTPD_USER:$vsftpd_user_password" | chpasswd
 systemctl enable vsftpd
 systemctl restart vsftpd
 
-# HTTP-Proxy
-apt-get install -y squid
-
-SQUID_CONFIG="/etc/squid/squid.conf"
-
-if ! grep -q "refjugeeks welcome" "$SQUID_CONFIG"
-then
-    cat >> "$SQUID_CONFIG" << EOF
-
-# Custom configuration for refjugeeks welcome
-acl localnet src 192.168.0.0/24
-http_access allow localnet
-cache_dir ufs /var/spool/squid 1000 16 256
-
-EOF
-fi
-
-systemctl enable squid
-systemctl restart squid
-
