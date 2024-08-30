@@ -21,6 +21,6 @@ function FindProxyForURL(url, host) {
         return "DIRECT";
 
     // Default: All other traffic, use below proxies, in fail-over order
-    return "PROXY 192.168.0.3:3128; PROXY 192.168.0.4:3128";
+    return "PROXY 192.168.10.3:3128; PROXY 192.168.10.4:3128";
 }
 
