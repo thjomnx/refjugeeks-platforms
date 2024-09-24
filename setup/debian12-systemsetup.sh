@@ -104,13 +104,15 @@ DNSMASQ_CONFIG_D="/etc/dnsmasq.d"
 
 apt-get install -y dnsmasq
 
+sed -i /#IGNORE_RESOLVCONF/s/^#//g "$DNSMASQ_DEFAULTS"
+sed -i /#DNSMASQ_EXCEPT/s/^#//g "$DNSMASQ_DEFAULTS"
 sed -i /CONFIG_DIR/s/$/,.select/ "$DNSMASQ_DEFAULTS"
 cp -f "$RESOURCES/${DNSMASQ_CONFIG_D##*/}"/*.select "$DNSMASQ_CONFIG_D"
 chown 0:0 "$DNSMASQ_CONFIG_D"/*.select
 (cd "$DNSMASQ_CONFIG_D" && ln -sf refjugeeks-lan.conf.primary.select refjugeeks-lan.conf)
 
-cp -f "$RESOURCES/dhcp-proxyconfig"/* "$GRAV_WEBROOT"
-chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT/"{refjugeeks.pac,wpad.dat}
+#cp -f "$RESOURCES/dhcp-proxyconfig"/* "$GRAV_WEBROOT"
+#chown -R "$GRAV_USER":"$GRAV_GROUP" "$GRAV_WEBROOT/"{refjugeeks.pac,wpad.dat}
 
 systemctl enable dnsmasq
 systemctl restart dnsmasq
