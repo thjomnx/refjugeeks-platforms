@@ -12,7 +12,7 @@ dhcp-option=3,192.168.10.1
 dhcp-option=6,192.168.10.3,192.168.10.4
 
 # DNS (search) domain for refjugeeks LAN
-domain=refjugeeks.net
+#domain=refjugeeks.net
 
 # Proxy auto-config PAC file
 #dhcp-option=252,http://192.168.10.4/refjugeeks.pac
